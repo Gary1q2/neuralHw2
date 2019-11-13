@@ -30,9 +30,18 @@ class rnn(torch.nn.Module):
               some input (inputDim = 64) and the current hidden state
               (hiddenDim = 128), and return the new hidden state.
         """
+        tanh = torch.nn.Tanh()
+        result = tanh(torch.mm(self.ih, input) + torch.mm(self.hh, hidden))
+        return result
 
     def forward(self, input):
         hidden = torch.zeros(128)
+
+        #(seqLength, batchSize, inputDim) = input
+
+        #hidden = self.rnnCell(, hidden)
+
+        #return hidden
         """
         TODO: Using self.rnnCell, create a model that takes as input
               a sequence of size [seqLength, batchSize, inputDim]
@@ -51,7 +60,7 @@ class rnnSimplified(torch.nn.Module):
               the network defined by this class is equivalent to the
               one defined in class "rnn".
         """
-        self.net = None
+        self.net = None # torch.nn.RNN(64, 128)
 
     def forward(self, input):
         _, hidden = self.net(input)
@@ -63,7 +72,7 @@ def lstm(input, hiddenSize):
     TODO: Let variable lstm be an instance of torch.nn.LSTM.
           Variable input is of size [batchSize, seqLength, inputDim]
     """
-    lstm = None
+    lstm = torch.nn.LSTM(input.shape[2], hiddenSize, batch_first=True)
     return lstm(input)
 
 def conv(input, weight):
