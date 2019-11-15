@@ -72,6 +72,19 @@ class NetworkCnn(tnn.Module):
         TODO:
         Create and initialise weights and biases for the layers.
         """
+        self.conv1 = tnn.Sequential(
+            tnn.Conv1d(in_channels=50, out_channels=50, kernel_size=8, padding=5),
+            tnn.ReLU(),
+            tnn.MaxPool1d(kernel_size=4))
+        self.conv2 = tnn.Sequential(
+            tnn.Conv1d(in_channels=50, out_channels=50, kernel_size=8, padding=5),
+            tnn.ReLU(),
+            tnn.MaxPool1d(kernel_size=4))
+        self.conv3 = tnn.Sequential (
+            tnn.Conv1d(in_channels=50, out_channels=50, kernel_size=8, padding=5),
+            tnn.ReLU(),
+            tnn.AdaptiveMaxPool1d(output_size=1))
+        self.fc1 = tnn.Linear(in_features=50, out_features=1)
 
     def forward(self, input, length):
         """
@@ -79,7 +92,15 @@ class NetworkCnn(tnn.Module):
         TODO:
         Create the forward pass through the network.
         """
+        input = input.permute(0, 2, 1)
 
+        input = self.conv1(input)
+        input = self.conv2(input)
+        input = self.conv3(input)
+        input = input.view(input.shape[0], -1)
+        input = self.fc1(input)
+
+        return input
 
 def lossFunc():
     """
@@ -88,7 +109,12 @@ def lossFunc():
     will add a sigmoid to the output and calculate the binary
     cross-entropy.
     """
+    def loss(output, labels):
+        output = torch.sigmoid(output)
+        output = tnn.functional.binary_cross_entropy(output, labels)
+        return output
 
+    return loss
 
 def measures(outputs, labels):
     """
@@ -109,22 +135,23 @@ def main():
     # Load the training dataset, and create a data loader to generate a batch.
     textField = data.Field(lower=True, include_lengths=True, batch_first=True)
     labelField = data.Field(sequential=False)
-
+    
     from imdb_dataloader import IMDB
     train, dev = IMDB.splits(textField, labelField, train="train", validation="dev")
-
+    
     textField.build_vocab(train, dev, vectors=GloVe(name="6B", dim=50))
     labelField.build_vocab(train, dev)
 
     trainLoader, testLoader = data.BucketIterator.splits((train, dev), shuffle=True, batch_size=64,
                                                          sort_key=lambda x: len(x.text), sort_within_batch=True)
-
+    
     # Create an instance of the network in memory (potentially GPU memory). Can change to NetworkCnn during development.
-    net = NetworkLstm().to(device)
-
+    #net = NetworkLstm().to(device)
+    net = NetworkCnn().to(device)
+    
     criterion = lossFunc()
     optimiser = topti.Adam(net.parameters(), lr=0.001)  # Minimise the loss using the Adam algorithm.
-
+    
     for epoch in range(10):
         running_loss = 0
 
