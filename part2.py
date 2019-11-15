@@ -110,6 +110,7 @@ def lossFunc():
     cross-entropy.
     """
     def loss(output, labels):
+        output = torch.flatten(output)
         output = torch.sigmoid(output)
         output = tnn.functional.binary_cross_entropy(output, labels)
         return output
@@ -125,6 +126,34 @@ def measures(outputs, labels):
 
     outputs and labels are torch tensors.
     """
+    outputs = torch.flatten(outputs)
+    outputs = torch.sigmoid(outputs)
+    #print("\nOutputs:")
+    #print(outputs)
+    #print("\nLabels")
+    #print(labels)
+
+    tp = 0
+    tn = 0
+    fp = 0
+    fn = 0
+
+    for i in range(len(outputs)):
+        if outputs[i] >= 0.5 and labels[i] >= 0.5:
+            tp += 1
+        if outputs[i] < 0.5 and labels[i] < 0.5:
+            tn += 1
+        if outputs[i] >= 0.5 and labels[i] < 0.5:
+            fp += 1
+        if outputs[i] < 0.5 and labels[i] >= 0.5:
+            fn += 1
+
+    print(tp)
+    print(tn)
+    print(fp)
+    print(fn)
+
+    return tp, tn, fp, fn
 
 
 def main():
@@ -152,7 +181,8 @@ def main():
     criterion = lossFunc()
     optimiser = topti.Adam(net.parameters(), lr=0.001)  # Minimise the loss using the Adam algorithm.
     
-    for epoch in range(10):
+    #for epoch in range(10):
+    for epoch in range(2):    
         running_loss = 0
 
         for i, batch in enumerate(trainLoader):
