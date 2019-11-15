@@ -140,10 +140,6 @@ def measures(outputs, labels):
     """
     outputs = torch.flatten(outputs)
     outputs = torch.sigmoid(outputs)
-    #print("\nOutputs:")
-    #print(outputs)
-    #print("\nLabels")
-    #print(labels)
 
     tp = 0
     tn = 0
@@ -159,11 +155,6 @@ def measures(outputs, labels):
             fp += 1
         if outputs[i] < 0.5 and labels[i] >= 0.5:
             fn += 1
-
-    print(tp)
-    print(tn)
-    print(fp)
-    print(fn)
 
     return tp, tn, fp, fn
 
@@ -187,14 +178,13 @@ def main():
                                                          sort_key=lambda x: len(x.text), sort_within_batch=True)
     
     # Create an instance of the network in memory (potentially GPU memory). Can change to NetworkCnn during development.
-    #net = NetworkLstm().to(device)
-    net = NetworkCnn().to(device)
+    net = NetworkLstm().to(device)
+    #net = NetworkCnn().to(device)
     
     criterion = lossFunc()
     optimiser = topti.Adam(net.parameters(), lr=0.001)  # Minimise the loss using the Adam algorithm.
     
-    #for epoch in range(10):
-    for epoch in range(2):    
+    for epoch in range(10):
         running_loss = 0
 
         for i, batch in enumerate(trainLoader):
