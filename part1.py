@@ -21,7 +21,7 @@ class rnn(torch.nn.Module):
 
         self.ih = torch.nn.Linear(64, 128)
         self.hh = torch.nn.Linear(128, 128)
-
+        print("network created")
     def rnnCell(self, input, hidden):
         """
         TODO: Using only the above defined linear layers and a tanh
@@ -30,22 +30,17 @@ class rnn(torch.nn.Module):
               some input (inputDim = 64) and the current hidden state
               (hiddenDim = 128), and return the new hidden state.
         """
+        result = self.ih(input) + self.hh(hidden)
+        return result.tanh()
 
-        #tanh = torch.nn.Tanh()
-        #result = tanh(torch.mm(self.ih, input) + torch.mm(self.hh, hidden))
-        #return result
-
-        #rnn = torch.nn.RNNCell(64, 128)
-        #return rnn(input, hidden)
 
     def forward(self, input):
         hidden = torch.zeros(128)
+        
+        for i in range(input.shape[0]):
+            hidden = self.rnnCell(input[i], hidden)
+        return hidden
 
-        #(seqLength, batchSize, inputDim) = input
-
-        #hidden = self.rnnCell(, hidden)
-
-        #return hidden
         """
         TODO: Using self.rnnCell, create a model that takes as input
               a sequence of size [seqLength, batchSize, inputDim]
