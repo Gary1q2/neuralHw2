@@ -41,8 +41,8 @@ class NetworkLstm(tnn.Module):
         Create and initialise weights and biases for the layers.
         """
         self.lstm = tnn.LSTM(50, 100, 1, batch_first=True)
-        self.fc1 = tnn.Linear(50 , 64)
-        self.fc2 = tnn.Linear(64 , 1)
+        self.fc1 = tnn.Linear(100, 64)
+        self.fc2 = tnn.Linear(64, 1)
 
 
     def forward(self, input, length):
@@ -51,13 +51,14 @@ class NetworkLstm(tnn.Module):
         TODO:
         Create the forward pass through the network.
         """
-        output, (h,c) = self.lstm(input, length)
-
+        input = input.permute(1, 0, 2)
+        output, _ = self.lstm(input)
+        output = output[-1]
         output = self.fc1(output)
         output = tnn.functional.relu(output)
         output = self.fc2(output)
-
-        return output, (h,c)
+        output = output.view(output.shape[0], -1)
+        return output
 
 
 # Class for creating the neural network.
@@ -105,13 +106,18 @@ class NetworkCnn(tnn.Module):
         Create the forward pass through the network.
         """
         input = input.permute(0, 2, 1)
+        print(input.shape)
 
         input = self.conv1(input)
+        print(input.shape)
         input = self.conv2(input)
+        print(input.shape)
         input = self.conv3(input)
+        print(input.shape)
         input = input.view(input.shape[0], -1)
+        print(input.shape)
         input = self.fc1(input)
-
+        print(input.shape)
         return input
 
 def lossFunc():
