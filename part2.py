@@ -40,7 +40,7 @@ class NetworkLstm(tnn.Module):
         TODO:
         Create and initialise weights and biases for the layers.
         """
-        self.lstm = tnn.LSTM(50, 100, 1, batch_first=True)
+        self.lstm = tnn.LSTM(50, 100, 1, batch_first=False)
         self.fc1 = tnn.Linear(100, 64)
         self.fc2 = tnn.Linear(64, 1)
 
@@ -106,18 +106,11 @@ class NetworkCnn(tnn.Module):
         Create the forward pass through the network.
         """
         input = input.permute(0, 2, 1)
-        print(input.shape)
-
         input = self.conv1(input)
-        print(input.shape)
         input = self.conv2(input)
-        print(input.shape)
         input = self.conv3(input)
-        print(input.shape)
         input = input.view(input.shape[0], -1)
-        print(input.shape)
         input = self.fc1(input)
-        print(input.shape)
         return input
 
 def lossFunc():
