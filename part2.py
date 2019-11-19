@@ -40,9 +40,9 @@ class NetworkLstm(tnn.Module):
         TODO:
         Create and initialise weights and biases for the layers.
         """
-        self.lstm = tnn.LSTM(50, 100, 1, batch_first=False)
-        self.fc1 = tnn.Linear(100, 64)
-        self.fc2 = tnn.Linear(64, 1)
+        self.lstm = tnn.LSTM(50, 100, 1, batch_first=True)
+        self.fc1 = tnn.Linear(50 , 64)
+        self.fc2 = tnn.Linear(64 , 1)
 
 
     def forward(self, input, length):
@@ -51,14 +51,13 @@ class NetworkLstm(tnn.Module):
         TODO:
         Create the forward pass through the network.
         """
-        input = input.permute(1, 0, 2)
-        output, _ = self.lstm(input)
-        output = output[-1]
+        output, (h,c) = self.lstm(input, length)
+
         output = self.fc1(output)
         output = tnn.functional.relu(output)
         output = self.fc2(output)
-        output = output.view(output.shape[0], -1)
-        return output
+
+        return output, (h,c)
 
 
 # Class for creating the neural network.
@@ -106,11 +105,13 @@ class NetworkCnn(tnn.Module):
         Create the forward pass through the network.
         """
         input = input.permute(0, 2, 1)
+
         input = self.conv1(input)
         input = self.conv2(input)
         input = self.conv3(input)
         input = input.view(input.shape[0], -1)
         input = self.fc1(input)
+
         return input
 
 def lossFunc():
@@ -120,13 +121,7 @@ def lossFunc():
     will add a sigmoid to the output and calculate the binary
     cross-entropy.
     """
-    def loss(output, labels):
-        output = torch.flatten(output)
-        output = torch.sigmoid(output)
-        output = tnn.functional.binary_cross_entropy(output, labels)
-        return output
-
-    return loss
+    return torch.nn.BCEWithLogitsLoss()
 
 def measures(outputs, labels):
     """
@@ -137,7 +132,6 @@ def measures(outputs, labels):
 
     outputs and labels are torch tensors.
     """
-    outputs = torch.flatten(outputs)
     outputs = torch.sigmoid(outputs)
 
     tp = 0
@@ -154,6 +148,11 @@ def measures(outputs, labels):
             fp += 1
         if outputs[i] < 0.5 and labels[i] >= 0.5:
             fn += 1
+
+    print(tp)
+    print(tn)
+    print(fp)
+    print(fn)
 
     return tp, tn, fp, fn
 
@@ -177,13 +176,14 @@ def main():
                                                          sort_key=lambda x: len(x.text), sort_within_batch=True)
     
     # Create an instance of the network in memory (potentially GPU memory). Can change to NetworkCnn during development.
-    net = NetworkLstm().to(device)
-    #net = NetworkCnn().to(device)
+    #net = NetworkLstm().to(device)
+    net = NetworkCnn().to(device)
     
     criterion = lossFunc()
     optimiser = topti.Adam(net.parameters(), lr=0.001)  # Minimise the loss using the Adam algorithm.
     
-    for epoch in range(10):
+    #for epoch in range(10):
+    for epoch in range(2):    
         running_loss = 0
 
         for i, batch in enumerate(trainLoader):
