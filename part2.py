@@ -57,8 +57,7 @@ class NetworkLstm(tnn.Module):
         output = self.fc1(output)
         output = tnn.functional.relu(output)
         output = self.fc2(output)
-        output = output.view(output.shape[0], -1)
-        return output
+        return torch.flatten(output)
 
 
 # Class for creating the neural network.
@@ -111,7 +110,7 @@ class NetworkCnn(tnn.Module):
         input = self.conv3(input)
         input = input.view(input.shape[0], -1)
         input = self.fc1(input)
-        return input
+        return torch.flatten(input)
 
 def lossFunc():
     """
@@ -121,7 +120,6 @@ def lossFunc():
     cross-entropy.
     """
     def loss(output, labels):
-        output = torch.flatten(output)
         output = torch.sigmoid(output)
         output = tnn.functional.binary_cross_entropy(output, labels)
         return output
@@ -137,9 +135,7 @@ def measures(outputs, labels):
 
     outputs and labels are torch tensors.
     """
-    outputs = torch.flatten(outputs)
     outputs = torch.sigmoid(outputs)
-
     tp = 0
     tn = 0
     fp = 0
