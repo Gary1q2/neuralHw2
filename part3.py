@@ -12,6 +12,7 @@ from imdb_dataloader import IMDB
 class Network(tnn.Module):
     def __init__(self):
         super(Network, self).__init__()
+<<<<<<< HEAD
         self.conv1 = tnn.Sequential(
             tnn.Conv1d(in_channels=50, out_channels=50, kernel_size=8, padding=5),
             tnn.ReLU(),
@@ -26,12 +27,18 @@ class Network(tnn.Module):
             tnn.AdaptiveMaxPool1d(output_size=1))
         self.fc1 = tnn.Linear(in_features=50, out_features=1)
 
+=======
+        self.lstm = tnn.LSTM(50, 100, 1, batch_first=False)
+        self.fc1 = tnn.Linear(100, 64)
+        self.fc2 = tnn.Linear(64, 1)
+>>>>>>> 31de1756de57c85e69d1db2cc4acabc6e8f028c2
 
     def forward(self, input, length):
         """
         DO NOT MODIFY FUNCTION SIGNATURE
         Create the forward pass through the network.
         """
+<<<<<<< HEAD
         input = input.permute(0, 2, 1)
         input = self.conv1(input)
         input = self.conv2(input)
@@ -40,6 +47,17 @@ class Network(tnn.Module):
         input = self.fc1(input)
         input = torch.flatten(input)
         return input
+=======
+        input = input.permute(1, 0, 2)
+        output, _ = self.lstm(input)
+        output = output[-1]
+        output = self.fc1(output)
+        output = tnn.functional.relu(output)
+        output = self.fc2(output)
+        output = output.view(output.shape[0], -1)
+        return output
+
+>>>>>>> 31de1756de57c85e69d1db2cc4acabc6e8f028c2
 
 class PreProcessing():
     def pre(x):
@@ -50,7 +68,7 @@ class PreProcessing():
         """Called after numericalization but prior to vectorization"""
         return batch
 
-    text_field = data.Field(lower=True, include_lengths=True, batch_first=True, preprocessing=pre, postprocessing=post)
+    text_field = data.Field(lower=True, include_lengths=True, batch_first=True, preprocessing=pre, postprocessing=None)
 
 
 def lossFunc():
@@ -60,8 +78,14 @@ def lossFunc():
     """
     def loss(output, labels):
         output = torch.flatten(output)
+<<<<<<< HEAD
         lossFunc = torch.nn.BCEWithLogitsLoss()
         return lossFunc(output, labels)
+=======
+        output = torch.sigmoid(output)
+        output = tnn.functional.binary_cross_entropy(output, labels)
+        return output
+>>>>>>> 31de1756de57c85e69d1db2cc4acabc6e8f028c2
 
     return loss
 
