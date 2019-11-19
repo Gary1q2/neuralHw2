@@ -119,12 +119,7 @@ def lossFunc():
     will add a sigmoid to the output and calculate the binary
     cross-entropy.
     """
-    def loss(output, labels):
-        output = torch.sigmoid(output)
-        output = tnn.functional.binary_cross_entropy(output, labels)
-        return output
-
-    return loss
+    return torch.nn.BCEWithLogitsLoss()
 
 def measures(outputs, labels):
     """
@@ -173,8 +168,8 @@ def main():
                                                          sort_key=lambda x: len(x.text), sort_within_batch=True)
     
     # Create an instance of the network in memory (potentially GPU memory). Can change to NetworkCnn during development.
-    net = NetworkLstm().to(device)
-    #net = NetworkCnn().to(device)
+    #net = NetworkLstm().to(device)
+    net = NetworkCnn().to(device)
     
     criterion = lossFunc()
     optimiser = topti.Adam(net.parameters(), lr=0.001)  # Minimise the loss using the Adam algorithm.
