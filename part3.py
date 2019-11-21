@@ -38,9 +38,7 @@ class Network(tnn.Module):
         input = self.conv3(input)
         input = input.view(input.shape[0], -1)
         input = self.fc1(input)
-        input = torch.flatten(input)
-        return input
-
+        return torch.flatten(input)
 
 class PreProcessing():
     def pre(x):
@@ -62,7 +60,6 @@ def lossFunc():
     def loss(output, labels):
         lossFunc = torch.nn.BCEWithLogitsLoss()
         return lossFunc(output, labels)
-
     return loss
 
 def main():
