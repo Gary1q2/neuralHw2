@@ -50,30 +50,14 @@ class NetworkLstm(tnn.Module):
         TODO:
         Create the forward pass through the network.
         """
-        #print(input.shape)
-        #input = input.permute(1, 0, 2)
-        #print(length)
-        #print(length.shape)
-        #print(input.shape)
         input, _ = self.lstm(input)
-        #print(input.shape)
         input = input.contiguous().view(-1, 100)
-
-        #print(input.shape)
-
-
         input = self.fc1(input)
-        #print(input.shape)
         input = tnn.functional.relu(input)
         input = self.fc2(input)
-        #print(input.shape)
-
         input = input.view(length.shape[0], -1)
-        #print(input.shape)
         input = input[:, -1]
-        #print(input.shape)
         return input
-
 
 # Class for creating the neural network.
 class NetworkCnn(tnn.Module):
