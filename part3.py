@@ -12,20 +12,20 @@ from imdb_dataloader import IMDB
 class Network(tnn.Module):
     def __init__(self):
         super(Network, self).__init__()
-
         self.conv1 = tnn.Sequential(
-            tnn.Conv1d(in_channels=50, out_channels=50, kernel_size=8, padding=5),
+            tnn.Conv1d(in_channels=50, out_channels=40, kernel_size=8, padding=5),
             tnn.ReLU(),
             tnn.MaxPool1d(kernel_size=4))
         self.conv2 = tnn.Sequential(
-            tnn.Conv1d(in_channels=50, out_channels=50, kernel_size=8, padding=5),
+            tnn.Conv1d(in_channels=40, out_channels=40, kernel_size=8, padding=5),
             tnn.ReLU(),
             tnn.MaxPool1d(kernel_size=4))
         self.conv3 = tnn.Sequential (
-            tnn.Conv1d(in_channels=50, out_channels=50, kernel_size=8, padding=5),
+            tnn.Conv1d(in_channels=40, out_channels=40, kernel_size=8, padding=5),
             tnn.ReLU(),
             tnn.AdaptiveMaxPool1d(output_size=1))
-        self.fc1 = tnn.Linear(in_features=50, out_features=1)
+        self.fc1 = tnn.Linear(in_features=40, out_features=1)
+
 
     def forward(self, input, length):
         """
@@ -112,7 +112,7 @@ def main():
 
             if i % 32 == 31:
                 print("Epoch: %2d, Batch: %4d, Loss: %.3f" % (epoch + 1, i + 1, running_loss / 32))
-                running_loss = 0
+                running_loss = 0    
 
     num_correct = 0
 
